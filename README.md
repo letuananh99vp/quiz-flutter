@@ -1,4 +1,4 @@
-# js_quiz
+# quiz-flutter
 
 A new Flutter project.
 
