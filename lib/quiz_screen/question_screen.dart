@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/mono-blue.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:js_quiz/quiz_js/widgets/button.dart';
+import 'package:js_quiz/quiz_screen/widgets/button.dart';
 import 'package:js_quiz/repositories/quiz_repositories.dart';
 
 class QuizData {

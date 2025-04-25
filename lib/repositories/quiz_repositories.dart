@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
-import 'package:js_quiz/quiz_js/question_screen.dart';
-import 'package:js_quiz/utils/quiz_js.dart';
+import 'package:js_quiz/quiz_screen/question_screen.dart';
+import 'package:js_quiz/utils/quiz.dart';
 
 Future<List<QuizData>> loadQuizQuestionsFromGitHub() async {
   try {

@@ -1,4 +1,4 @@
-import 'package:js_quiz/quiz_js/question_screen.dart';
+import 'package:js_quiz/quiz_screen/question_screen.dart';
 
 class QuizParser {
   /// Parses quiz data from GitHub JavaScript Questions repository

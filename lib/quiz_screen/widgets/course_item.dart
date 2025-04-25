@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:js_quiz/quiz_js/question_screen.dart';
+import 'package:js_quiz/quiz_screen/question_screen.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class CourseItem extends StatelessWidget {
@@ -41,18 +41,18 @@ class CourseItem extends StatelessWidget {
           children: [
             Row(
               children: [
-                // Container(
-                //   width: 72,
-                //   height: 50,
-                //   padding: EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                //   decoration: BoxDecoration(
-                //     color: Color(0xffABC2E3).withOpacity(0.27),
-                //     borderRadius: BorderRadius.circular(4),
-                //   ),
-                //   child: Image.network(
-                //     url,
-                //   ),
-                // ),
+                Container(
+                  width: 72,
+                  height: 50,
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Color(0xffABC2E3).withOpacity(0.27),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Image.network(
+                    url,
+                  ),
+                ),
                 SizedBox(
                   width: 10,
                 ),
