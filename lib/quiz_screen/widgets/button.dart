@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:js_quiz/constants/constants.dart';
 
 class ButtonWidget extends StatelessWidget {
   final Function onPressed;
@@ -19,9 +20,9 @@ class ButtonWidget extends StatelessWidget {
       onPressed: isDisabled == true ? null : () => onPressed(),
       style: ElevatedButton.styleFrom(
         elevation: 0,
-        backgroundColor: const Color(0xFF0F469A),
+        backgroundColor: QuizColors.primaryColor,
         foregroundColor: Colors.white,
-        minimumSize: Size(width ?? double.infinity, 48),
+        minimumSize: Size(width ?? double.infinity, 40),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
         ),

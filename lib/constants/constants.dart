@@ -1,4 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:js_quiz/quiz_screen/widgets/course_item.dart';
+
+class QuizColors {
+  static const Color primaryColor = Color(0xFF0F469A);
+  static const Color boxshadowColor = Color.fromRGBO(0, 0, 0, 0.25);
+}
 
 class QuizConstants {
   static List<CourseItem> courseList = [

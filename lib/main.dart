@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:js_quiz/constants/constants.dart';
 import 'package:js_quiz/quiz_screen/quiz_screen.dart';
 
 void main() {
@@ -12,10 +13,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Quiz app',
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF0F469A)),
+        colorScheme: ColorScheme.fromSeed(seedColor: QuizColors.primaryColor),
         appBarTheme: AppBarTheme(
             backgroundColor: Colors.white, surfaceTintColor: Colors.white),
         useMaterial3: true,
