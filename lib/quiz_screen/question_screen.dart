@@ -4,35 +4,23 @@ import 'package:flutter_highlight/themes/mono-blue.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:js_quiz/constants/constants.dart';
 import 'package:js_quiz/quiz_screen/widgets/button.dart';
+import 'package:js_quiz/quiz_screen/widgets/confirm_dialog.dart';
 import 'package:js_quiz/repositories/preference_repository.dart';
-import 'package:js_quiz/repositories/quiz_repositories.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+
 import 'widgets/answer_item.dart';
 
-class QuizData {
-  String question = '';
-  String code = '';
-  List<String> options = [];
-  String correctAnswer = '';
-  String explanation = '';
-
-  QuizData(
-      {required this.question,
-      required this.code,
-      required this.options,
-      required this.correctAnswer,
-      required this.explanation});
-}
-
-class StatusAnswer {
-  int correctAnswer = 0;
-  int incorrectAnswer = 0;
-  StatusAnswer({required this.correctAnswer, required this.incorrectAnswer});
-  int get totalAnswers => correctAnswer + incorrectAnswer;
-}
-
 class QuestionScreen extends StatefulWidget {
-  const QuestionScreen({super.key});
+  final List<QuizData> questions;
+  final String courseName;
+  final String localKey;
+  final Function onSaved;
+  const QuestionScreen(
+      {super.key,
+      required this.questions,
+      required this.courseName,
+      required this.localKey,
+      required this.onSaved});
 
   @override
   State<QuestionScreen> createState() => _QuestionScreenState();
@@ -40,10 +28,9 @@ class QuestionScreen extends StatefulWidget {
 
 class _QuestionScreenState extends State<QuestionScreen> {
   bool _isExpanded = false;
-  int currentQuestion = 1;
-  List<QuizData?> _questions = [];
+  int _currentQuestion = 1;
   Map<String, dynamic> _answers = {};
-  bool isLoading = true;
+  bool isLoading = false;
   bool isDisabledSaveBtn = true;
   final StatusAnswer _statusAnswer =
       StatusAnswer(correctAnswer: 0, incorrectAnswer: 0);
@@ -51,28 +38,32 @@ class _QuestionScreenState extends State<QuestionScreen> {
   @override
   void initState() {
     super.initState();
-    getQuizData();
+    getDataPreferenceRepo();
   }
 
-  getQuizData() async {
-    List<QuizData> data = await loadQuizQuestionsFromGitHub();
-    Map<String, dynamic> answers = await PreferenceRepository().getSaveData();
+  getDataPreferenceRepo() async {
+    List<QuizData> data = widget.questions;
+    Map<String, dynamic> answers =
+        await PreferenceRepository().getSaveData(widget.localKey);
     for (int index = 1; index <= answers.length; index++) {
       String? savedAnswer = answers['$index'];
       if (savedAnswer != null) {
         if (savedAnswer == data[index - 1].correctAnswer) {
           _statusAnswer.correctAnswer++;
-        } else {
+        } else if (savedAnswer != data[index - 1].correctAnswer) {
           _statusAnswer.incorrectAnswer++;
         }
       }
     }
     setState(() {
-      isLoading = false;
-      _questions = data;
       _answers = answers;
-      currentQuestion = answers.length + 1;
+      _currentQuestion = answers.length + 1;
     });
+  }
+
+  _handleSaveAnswer() {
+    PreferenceRepository().saveData(widget.localKey, _answers);
+    widget.onSaved();
   }
 
   @override
@@ -88,9 +79,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
         ),
       );
     }
-    QuizData? quizData = _questions[currentQuestion - 1];
-    int totalQuestions = _questions.length;
-    String selectedAnswer = _answers['$currentQuestion'] ?? '';
+    QuizData? quizData = widget.questions[_currentQuestion - 1];
+    int totalQuestions = widget.questions.length;
+    String selectedAnswer = _answers['$_currentQuestion'] ?? '';
     int remaining = totalQuestions - _statusAnswer.totalAnswers;
 
     return SafeArea(
@@ -118,19 +109,24 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '($currentQuestion) ${quizData!.question}',
+                    '($_currentQuestion) ${quizData!.question}',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
-                  SizedBox(
+                  Container(
                     width: double.infinity,
-                    child: HighlightView(
-                      quizData.code,
-                      language: 'javascript',
-                      theme: monoBlueTheme,
-                      padding: EdgeInsets.all(12),
-                      textStyle: TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 16,
+                    height: quizData.code.isEmpty ? 0 : null,
+                    color: Color(0xffeaeef3),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: HighlightView(
+                        quizData.code,
+                        language: 'javascript',
+                        theme: monoBlueTheme,
+                        padding: EdgeInsets.all(12),
+                        textStyle: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
@@ -142,7 +138,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                           if (selectedAnswer.isEmpty)
                             {
                               setState(() {
-                                _answers['$currentQuestion'] = question[0];
+                                _answers['$_currentQuestion'] = question[0];
                                 isDisabledSaveBtn = false;
                                 if (question[0] == quizData.correctAnswer) {
                                   _statusAnswer.correctAnswer++;
@@ -198,10 +194,24 @@ class _QuestionScreenState extends State<QuestionScreen> {
     return AppBar(
       toolbarHeight: 76,
       centerTitle: true,
+      leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            if (isDisabledSaveBtn) {
+              Navigator.pop(context);
+              return;
+            }
+            showConfirmDialog(context).then((value) {
+              if (value == true) {
+                _handleSaveAnswer();
+              }
+              Navigator.pop(context);
+            });
+          }),
       title: Column(
         children: [
           Text(
-            "JavaScript",
+            widget.courseName,
             style: TextStyle(fontSize: 16),
           ),
           Text(
@@ -252,7 +262,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
         children: [
           ButtonWidget(
             onPressed: () {
-              PreferenceRepository().saveData(_answers);
+              _handleSaveAnswer();
               setState(() {
                 isDisabledSaveBtn = true;
               });
@@ -268,27 +278,27 @@ class _QuestionScreenState extends State<QuestionScreen> {
                 onPressed: () => {
                   setState(() {
                     _isExpanded = false;
-                    if (currentQuestion > 1) {
-                      currentQuestion = currentQuestion - 1;
+                    if (_currentQuestion > 1) {
+                      _currentQuestion = _currentQuestion - 1;
                     }
                   })
                 },
                 text: "Previous",
                 width: 100,
-                isDisabled: currentQuestion == 1,
+                isDisabled: _currentQuestion == 1,
               ),
               ButtonWidget(
                 onPressed: () => {
                   setState(() {
                     _isExpanded = false;
-                    if (currentQuestion < _questions.length) {
-                      currentQuestion = currentQuestion + 1;
+                    if (_currentQuestion < widget.questions.length) {
+                      _currentQuestion = _currentQuestion + 1;
                     }
                   })
                 },
                 text: "Next",
                 width: 100,
-                isDisabled: currentQuestion == _questions.length ||
+                isDisabled: _currentQuestion == widget.questions.length ||
                     selectedAnswer.isEmpty,
               ),
             ],

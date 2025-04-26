@@ -1,28 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:js_quiz/constants/constants.dart';
 import 'package:js_quiz/quiz_screen/question_screen.dart';
+import 'package:js_quiz/repositories/preference_repository.dart';
+import 'package:js_quiz/repositories/quiz_repositories.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
-class CourseItem extends StatelessWidget {
+class CourseItem extends StatefulWidget {
   final String url;
   final String name;
-  final int question;
-  final int replied;
   final String bgColor;
   final String processColor;
-  const CourseItem(
-      {super.key,
-      required this.url,
-      required this.name,
-      required this.question,
-      required this.bgColor,
-      required this.processColor,
-      required this.replied});
+  final String imgSrc;
+  final String localKey;
+  const CourseItem({
+    super.key,
+    required this.url,
+    required this.imgSrc,
+    required this.name,
+    required this.bgColor,
+    required this.processColor,
+    required this.localKey,
+  });
+
+  @override
+  State<CourseItem> createState() => _CourseItemState();
+}
+
+class _CourseItemState extends State<CourseItem> {
+  List<QuizData> _questions = [];
+  int _totalAnswer = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    getQuizData();
+  }
+
+  getQuizData() async {
+    List<QuizData> data = await loadQuizQuestionsFromGitHub(widget.url);
+    setState(() {
+      _questions = data;
+    });
+    getDataPreferenceRepo();
+  }
+
+  getDataPreferenceRepo() async {
+    Map<String, dynamic> answers =
+        await PreferenceRepository().getSaveData(widget.localKey);
+    setState(() {
+      _totalAnswer = answers.length;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    int totalQuestion = _questions.length;
     return InkWell(
       onTap: () => {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => QuestionScreen()))
+            context,
+            MaterialPageRoute(
+                builder: (context) => QuestionScreen(
+                      questions: _questions,
+                      courseName: widget.name,
+                      onSaved: () => getDataPreferenceRepo(),
+                      localKey: widget.localKey,
+                    )))
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -50,7 +93,7 @@ class CourseItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Image.network(
-                    url,
+                    widget.imgSrc,
                   ),
                 ),
                 SizedBox(
@@ -59,8 +102,8 @@ class CourseItem extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(name),
-                    Text('$question Question'),
+                    Text(widget.name),
+                    Text('$totalQuestion Question'),
                   ],
                 )
               ],
@@ -69,15 +112,15 @@ class CourseItem extends StatelessWidget {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                  color: Color(int.parse('0xFF$bgColor')),
+                  color: Color(int.parse('0xFF${widget.bgColor}')),
                   borderRadius: BorderRadius.circular(9999)),
               child: CircularPercentIndicator(
                 radius: 30.0,
                 lineWidth: 5.0,
-                percent: replied / question,
-                center: Text('$replied/$question'),
-                backgroundColor: Color(int.parse('0xFF$bgColor')),
-                progressColor: Color(int.parse('0xFF$processColor')),
+                percent: _totalAnswer / totalQuestion,
+                center: Text('$_totalAnswer/$totalQuestion'),
+                backgroundColor: Color(int.parse('0xFF${widget.bgColor}')),
+                progressColor: Color(int.parse('0xFF${widget.processColor}')),
               ),
             ),
           ],
