@@ -6,7 +6,6 @@ import 'package:js_quiz/constants/constants.dart';
 import 'package:js_quiz/quiz_screen/widgets/button.dart';
 import 'package:js_quiz/quiz_screen/widgets/confirm_dialog.dart';
 import 'package:js_quiz/repositories/preference_repository.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import 'widgets/answer_item.dart';
 
@@ -30,7 +29,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
   bool _isExpanded = false;
   int _currentQuestion = 1;
   Map<String, dynamic> _answers = {};
-  bool isLoading = false;
   bool isDisabledSaveBtn = true;
   final StatusAnswer _statusAnswer =
       StatusAnswer(correctAnswer: 0, incorrectAnswer: 0);
@@ -68,17 +66,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return Container(
-        decoration: BoxDecoration(color: QuizColors.primaryColor),
-        child: Center(
-          child: LoadingAnimationWidget.inkDrop(
-            color: Colors.white,
-            size: 50,
-          ),
-        ),
-      );
-    }
     QuizData? quizData = widget.questions[_currentQuestion - 1];
     int totalQuestions = widget.questions.length;
     String selectedAnswer = _answers['$_currentQuestion'] ?? '';

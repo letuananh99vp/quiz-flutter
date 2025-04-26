@@ -12,6 +12,7 @@ class CourseItem extends StatefulWidget {
   final String processColor;
   final String imgSrc;
   final String localKey;
+  final Function? setLoading;
   const CourseItem({
     super.key,
     required this.url,
@@ -20,6 +21,7 @@ class CourseItem extends StatefulWidget {
     required this.bgColor,
     required this.processColor,
     required this.localKey,
+    this.setLoading,
   });
 
   @override
@@ -38,6 +40,7 @@ class _CourseItemState extends State<CourseItem> {
 
   getQuizData() async {
     List<QuizData> data = await loadQuizQuestionsFromGitHub(widget.url);
+    widget.setLoading!(false);
     setState(() {
       _questions = data;
     });
