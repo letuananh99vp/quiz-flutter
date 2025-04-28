@@ -11,7 +11,7 @@ Future<bool?> showConfirmDialog(BuildContext context, String content) {
           onPressed: () => Navigator.of(context).pop(false),
           child: Text('Không'),
         ),
-        ElevatedButton(
+        TextButton(
           onPressed: () => Navigator.of(context).pop(true),
           child: Text('Có'),
         ),

@@ -37,7 +37,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
       StatusAnswer(correctAnswer: 0, incorrectAnswer: 0);
   bool isLoading = true;
   Timer? _saveTimer;
-  final int _debounceTime = 3;
+  final int _debounceTime = 5;
 
   @override
   void initState() {

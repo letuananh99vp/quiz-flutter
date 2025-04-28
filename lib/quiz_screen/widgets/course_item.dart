@@ -58,7 +58,7 @@ class _CourseItemState extends State<CourseItem> {
   @override
   Widget build(BuildContext context) {
     int totalQuestion = _questions.length;
-    return InkWell(
+    return GestureDetector(
       onTap: () => {
         Navigator.push(
             context,
@@ -75,7 +75,7 @@ class _CourseItemState extends State<CourseItem> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Color.fromRGBO(0, 0, 0, 0.25),
               blurRadius: 16,
             ),
           ],
@@ -92,7 +92,7 @@ class _CourseItemState extends State<CourseItem> {
                   height: 50,
                   padding: EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                   decoration: BoxDecoration(
-                    color: Color(0xffABC2E3).withOpacity(0.27),
+                    color: Color.fromRGBO(171, 194, 227, 0.27),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Image.network(

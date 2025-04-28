@@ -19,7 +19,7 @@ class AnswerItem extends StatelessWidget {
     bool isCorrect = correctAnswer == question[0] && selectedAnswer.isNotEmpty;
     bool isIncorrect =
         selectedAnswer != correctAnswer && selectedAnswer == question[0];
-    return InkWell(
+    return GestureDetector(
       onTap: () => onTap(),
       child: Container(
         width: double.infinity,
