@@ -21,4 +21,13 @@ class PreferenceRepository {
       return {};
     }
   }
+
+  Future<void> removeData(String key) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(key);
+    } catch (e) {
+      print("Error removing data: $e");
+    }
+  }
 }

@@ -66,7 +66,7 @@ class _CourseItemState extends State<CourseItem> {
                 builder: (context) => QuestionScreen(
                       questions: _questions,
                       courseName: widget.name,
-                      onSaved: () => getDataPreferenceRepo(),
+                      onReset: () => getDataPreferenceRepo(),
                       localKey: widget.localKey,
                     )))
       },
@@ -97,6 +97,8 @@ class _CourseItemState extends State<CourseItem> {
                   ),
                   child: Image.network(
                     widget.imgSrc,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Icon(Icons.question_answer),
                   ),
                 ),
                 SizedBox(
