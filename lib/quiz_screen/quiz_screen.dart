@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:js_quiz/constants/constants.dart';
 import 'package:js_quiz/quiz_screen/widgets/course_item.dart';
+import 'package:js_quiz/quiz_screen/widgets/quiz_banner.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
@@ -15,22 +16,30 @@ class _QuizScreenState extends State<QuizScreen> {
     return SafeArea(
         bottom: false,
         child: Scaffold(
-            body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(16),
+          body: SingleChildScrollView(
             child: Column(
-              spacing: 18,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Quiz",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-                ...QuizConstants.courseList.map((item) => CourseItem(
-                    url: item.url, imgSrc: item.imgSrc, name: item.name)),
+                QuizBanner(),
+                GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 1.5,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: QuizConstants.courseList.length,
+                  itemBuilder: (context, index) {
+                    return CourseItem(
+                      url: QuizConstants.courseList[index].url,
+                      imgSrc: QuizConstants.courseList[index].imgSrc,
+                      name: QuizConstants.courseList[index].name,
+                    );
+                  },
+                )
               ],
             ),
           ),
-        )));
+        ));
   }
 }

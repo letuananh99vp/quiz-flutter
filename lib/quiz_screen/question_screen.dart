@@ -13,12 +13,11 @@ import 'widgets/answer_item.dart';
 class QuestionScreen extends StatefulWidget {
   final String url;
   final String courseName;
-  final Function onReset;
-  const QuestionScreen(
-      {super.key,
-      required this.url,
-      required this.courseName,
-      required this.onReset});
+  const QuestionScreen({
+    super.key,
+    required this.url,
+    required this.courseName,
+  });
 
   @override
   State<QuestionScreen> createState() => _QuestionScreenState();
