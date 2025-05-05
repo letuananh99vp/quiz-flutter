@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:js_quiz/constants/constants.dart';
 
 class QuizParser {
@@ -26,77 +28,126 @@ class QuizParser {
     return quizList;
   }
 
-  /// Parse một câu hỏi đơn lẻ
-  static QuizData parseQuizQuestion(String questionText) {
-    String question = '';
-    String code = '';
-    List<String> options = [];
-    String correctAnswer = '';
-    String explanation = '';
-
-    // Tách thành phần câu hỏi và phần đáp án
-    final parts = questionText.split('<details>');
-    if (parts.length < 2) {
-      throw FormatException('Question format not recognized');
-    }
-
-    final questionPart = parts[0];
-    final answerPart = '<details>' + parts[1];
-
-    // Lấy tiêu đề câu hỏi
-    final titleRegex = RegExp(r'#{2,6}\s*\d+\.\s*(.+?)(\n|$)');
-    final titleMatch = titleRegex.firstMatch(questionPart);
-    if (titleMatch != null) {
-      question = titleMatch.group(1)?.trim() ?? '';
-    }
-
-    // Lấy đoạn mã nếu có
-    final codeRegex = RegExp(r'```[\s\S]*?```');
-    final codeMatch = codeRegex.firstMatch(questionPart);
-    if (codeMatch != null) {
-      code = codeMatch
-          .group(0)!
-          .replaceFirst(RegExp(r'^```(javascript|js|dart|flutter)?\n'), '')
-          .replaceFirst(RegExp(r'```$'), '')
-          .trim();
-    }
-
-    // Lấy các lựa chọn
-    final optionsRegex = RegExp(r'- ([A-E]):\s*(.+)', multiLine: true);
-    final optionsMatches = optionsRegex.allMatches(questionPart);
-    if (optionsMatches.isNotEmpty) {
-      options = optionsMatches.map((m) {
-        final optionLetter = m.group(1) ?? '';
-        final optionText = m.group(2) ?? '';
-        return '$optionLetter: $optionText'.trim();
-      }).toList();
-    }
-
-    // Lấy đáp án chính xác
-    final answerRegex =
-        RegExp(r'#{1,6}\s*Answer:\s*([A-E])', caseSensitive: false);
-    final answerMatch = answerRegex.firstMatch(answerPart);
-    if (answerMatch != null) {
-      correctAnswer = answerMatch.group(1) ?? '';
-    }
-
-    // Lấy phần giải thích - cần linh hoạt hơn vì định dạng có thể khác nhau
-    final explanationStartIndex = answerPart.indexOf('Answer: $correctAnswer') +
-        'Answer: $correctAnswer'.length;
-    if (explanationStartIndex > 0 &&
-        explanationStartIndex < answerPart.length) {
-      // Lấy toàn bộ nội dung sau "Answer: X"
-      explanation = extractExplanation(answerPart, correctAnswer);
-    }
-
-    return QuizData(
-      question: question,
-      code: code,
-      options: options,
-      correctAnswer: correctAnswer,
-      explanation: explanation,
-    );
+  /// Chuyển đổi một mảng dữ liệu API JSON sang List<QuizData>
+  static List<QuizData> convertQuizApiToQuizDataList(String jsonString) {
+    // Chuyển đổi string thành JSON
+    List<dynamic> decodedJson = jsonDecode(jsonString);
+    return decodedJson
+        .map((item) => convertQuizApiItemToQuizData(item))
+        .toList();
   }
+}
+
+QuizData convertQuizApiItemToQuizData(Map<String, dynamic> apiData) {
+  // Trích xuất câu hỏi
+  String question = apiData['question'] ?? '';
+
+  // Mặc định code là rỗng vì không có trong dữ liệu gốc
+  String code = '';
+
+  // Trích xuất các tùy chọn
+  List<String> options = [];
+  Map<String, dynamic> answers = apiData['answers'];
+  Map<String, dynamic> correctAnswers = apiData['correct_answers'];
+
+  // Thêm các tùy chọn vào danh sách nếu có giá trị
+  const answerKeys = ['a', 'b', 'c', 'd', 'e', 'f'];
+  for (final key in answerKeys) {
+    if (answers['answer_$key'] != null) {
+      options.add('${key.toUpperCase()}: ${answers['answer_$key']}');
+    }
+  }
+
+  // Tìm câu trả lời đúng
+  String correctAnswer = '';
+  for (final key in answerKeys) {
+    if (correctAnswers['answer_${key}_correct'] == "true") {
+      correctAnswer = key.toUpperCase();
+      break;
+    }
+  }
+
+  // Lấy phần giải thích
+  String explanation = apiData['explanation'] ?? '';
+
+  return QuizData(
+    question: question,
+    code: code,
+    options: options,
+    correctAnswer: correctAnswer,
+    explanation: explanation,
+  );
+}
+
+/// Parse một câu hỏi đơn lẻ
+QuizData parseQuizQuestion(String questionText) {
+  String question = '';
+  String code = '';
+  List<String> options = [];
+  String correctAnswer = '';
+  String explanation = '';
+
+  // Tách thành phần câu hỏi và phần đáp án
+  final parts = questionText.split('<details>');
+  if (parts.length < 2) {
+    throw FormatException('Question format not recognized');
+  }
+
+  final questionPart = parts[0];
+  final answerPart = '<details>' + parts[1];
+
+  // Lấy tiêu đề câu hỏi
+  final titleRegex = RegExp(r'#{2,6}\s*\d+\.\s*(.+?)(\n|$)');
+  final titleMatch = titleRegex.firstMatch(questionPart);
+  if (titleMatch != null) {
+    question = titleMatch.group(1)?.trim() ?? '';
+  }
+
+  // Lấy đoạn mã nếu có
+  final codeRegex = RegExp(r'```[\s\S]*?```');
+  final codeMatch = codeRegex.firstMatch(questionPart);
+  if (codeMatch != null) {
+    code = codeMatch
+        .group(0)!
+        .replaceFirst(RegExp(r'^```(javascript|js|dart|flutter)?\n'), '')
+        .replaceFirst(RegExp(r'```$'), '')
+        .trim();
+  }
+
+  // Lấy các lựa chọn
+  final optionsRegex = RegExp(r'- ([A-E]):\s*(.+)', multiLine: true);
+  final optionsMatches = optionsRegex.allMatches(questionPart);
+  if (optionsMatches.isNotEmpty) {
+    options = optionsMatches.map((m) {
+      final optionLetter = m.group(1) ?? '';
+      final optionText = m.group(2) ?? '';
+      return '$optionLetter: $optionText'.trim();
+    }).toList();
+  }
+
+  // Lấy đáp án chính xác
+  final answerRegex =
+      RegExp(r'#{1,6}\s*Answer:\s*([A-E])', caseSensitive: false);
+  final answerMatch = answerRegex.firstMatch(answerPart);
+  if (answerMatch != null) {
+    correctAnswer = answerMatch.group(1) ?? '';
+  }
+
+  // Lấy phần giải thích - cần linh hoạt hơn vì định dạng có thể khác nhau
+  final explanationStartIndex = answerPart.indexOf('Answer: $correctAnswer') +
+      'Answer: $correctAnswer'.length;
+  if (explanationStartIndex > 0 && explanationStartIndex < answerPart.length) {
+    // Lấy toàn bộ nội dung sau "Answer: X"
+    explanation = extractExplanation(answerPart, correctAnswer);
+  }
+
+  return QuizData(
+    question: question,
+    code: code,
+    options: options,
+    correctAnswer: correctAnswer,
+    explanation: explanation,
+  );
 }
 
 String extractExplanation(String answerPart, String correctAnswer) {
