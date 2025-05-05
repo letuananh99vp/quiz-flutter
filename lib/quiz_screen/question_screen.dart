@@ -144,24 +144,24 @@ class _QuestionScreenState extends State<QuestionScreen> {
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
-                    Container(
-                      width: double.infinity,
-                      height: quizData.code.isEmpty ? 0 : null,
-                      color: Color(0xffeaeef3),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: HighlightView(
-                          quizData.code,
-                          language: 'javascript',
-                          theme: monoBlueTheme,
-                          padding: EdgeInsets.all(12),
-                          textStyle: TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 16,
+                    if (quizData.code.isNotEmpty)
+                      Container(
+                        width: double.infinity,
+                        color: Color(0xffeaeef3),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: HighlightView(
+                            quizData.code,
+                            language: 'javascript',
+                            theme: monoBlueTheme,
+                            padding: EdgeInsets.all(12),
+                            textStyle: TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                     ...quizData.options.map((question) => AnswerItem(
                           question: question,
                           selectedAnswer: selectedAnswer,
@@ -173,7 +173,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextButton.icon(
-                          onPressed: selectedAnswer.isEmpty
+                          onPressed: selectedAnswer.isEmpty ||
+                                  quizData.explanation.isEmpty
                               ? null
                               : () {
                                   setState(() {
