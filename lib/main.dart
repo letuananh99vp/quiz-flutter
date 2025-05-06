@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Quiz app',
       theme: ThemeData(
+        fontFamily: 'Kufam',
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(seedColor: QuizColors.primaryColor),
         appBarTheme: AppBarTheme(
