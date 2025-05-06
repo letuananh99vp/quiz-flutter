@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:js_quiz/quiz_screen/question_screen.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class CourseItem extends StatelessWidget {
   final String url;
@@ -15,20 +14,20 @@ class CourseItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => QuestionScreen(
-                      url: url,
-                      courseName: name,
-                    )))
-      },
-      child: Column(
-        spacing: 6,
-        children: [
-          Container(
+    return Column(
+      spacing: 6,
+      children: [
+        InkWell(
+          onTap: () => {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => QuestionScreen(
+                          url: url,
+                          courseName: name,
+                        )))
+          },
+          child: Container(
             width: 80,
             height: 50,
             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 5),
@@ -42,9 +41,9 @@ class CourseItem extends StatelessWidget {
                   Icon(Icons.image_not_supported),
             ),
           ),
-          Text(name),
-        ],
-      ),
+        ),
+        Text(name),
+      ],
     );
   }
 }
